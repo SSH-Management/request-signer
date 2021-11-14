@@ -60,10 +60,22 @@ func (r *RequestSigner) readKeys() error {
 	return nil
 }
 
-func (r RequestSigner) Sign(data []byte) string {
+func (r RequestSigner) Sign(payload []byte, timestamp uint64) string {
+	data := r.makePayload(payload, timestamp)
+
 	signature := ed25519.Sign(r.private, data)
 
 	return base64.RawURLEncoding.EncodeToString(signature)
+}
+
+func (r RequestSigner) makePayload(payload []byte, timestamp uint64) []byte {
+	data := make([]byte, 0, 8+len(payload))
+
+	binary.LittleEndian.PutUint64(data, timestamp)
+
+	copy(data, payload)
+
+	return data
 }
 
 func (r RequestSigner) Verify(timestamp uint64, payload []byte, signature string) error {
@@ -73,11 +85,7 @@ func (r RequestSigner) Verify(timestamp uint64, payload []byte, signature string
 		return err
 	}
 
-	data := make([]byte, 0, 8+len(payload))
-
-	binary.LittleEndian.PutUint64(data, timestamp)
-
-	copy(data, payload)
+	data := r.makePayload(payload, timestamp)
 
 	if !ed25519.Verify(r.public, data, signatureBytes) {
 		return ErrInvalidSignature
@@ -91,14 +99,22 @@ func (r RequestSigner) GenerateKeys() error {
 		return nil
 	}
 
+	if _, err := utils.CreatePath(r.privateKeyPath, 0744); err != nil {
+		return err
+	}
+
+	if _, err := utils.CreatePath(r.publicKeyPath, 0744); err != nil {
+		return err
+	}
+
+
 	public, private, err := ed25519.GenerateKey(nil)
 
 	if err != nil {
 		return err
 	}
 
-	if err := os.WriteFile(r.privateKeyPath, public, 0644); err != nil {
-		_ = os.Remove(r.privateKeyPath)
+	if err := os.WriteFile(r.publicKeyPath, public, 0644); err != nil {
 		_ = os.Remove(r.publicKeyPath)
 		return err
 	}
