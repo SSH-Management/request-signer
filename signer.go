@@ -9,8 +9,7 @@ import (
 	"github.com/SSH-Management/utils"
 )
 
-
-func NewSigner(publicKeyPath, privateKeyPath string) (RequestSigner, error) {
+func New(publicKeyPath, privateKeyPath string) (RequestSigner, error) {
 	publicKeyAbsPath, err := utils.GetAbsolutePath(publicKeyPath)
 
 	if err != nil {
@@ -68,16 +67,6 @@ func (r RequestSigner) Sign(payload []byte, timestamp uint64) string {
 	return base64.RawURLEncoding.EncodeToString(signature)
 }
 
-func (r RequestSigner) makePayload(payload []byte, timestamp uint64) []byte {
-	data := make([]byte, 0, 8+len(payload))
-
-	binary.LittleEndian.PutUint64(data, timestamp)
-
-	copy(data, payload)
-
-	return data
-}
-
 func (r RequestSigner) Verify(timestamp uint64, payload []byte, signature string) error {
 	signatureBytes, err := base64.RawURLEncoding.DecodeString(signature)
 
@@ -107,7 +96,6 @@ func (r RequestSigner) GenerateKeys() error {
 		return err
 	}
 
-
 	public, private, err := ed25519.GenerateKey(nil)
 
 	if err != nil {
@@ -126,4 +114,14 @@ func (r RequestSigner) GenerateKeys() error {
 	}
 
 	return nil
+}
+
+func (r RequestSigner) makePayload(payload []byte, timestamp uint64) []byte {
+	data := make([]byte, 0, 8+len(payload))
+
+	binary.LittleEndian.PutUint64(data, timestamp)
+
+	copy(data, payload)
+
+	return data
 }

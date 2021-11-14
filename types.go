@@ -13,7 +13,7 @@ type (
 
 	Interface interface {
 		GenerateKeys() error
-		Sign(data []byte, timestap uint64)
-		Verify(timestamp uint64, payload []byte, signature string) error
+		Sign([]byte, uint64) string
+		Verify(uint64, []byte, string) error
 	}
 )
