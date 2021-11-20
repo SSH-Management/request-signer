@@ -1,0 +1,41 @@
+name: 'Testing'
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+jobs:
+  test:
+    runs-on: ubuntu-20.04
+    strategy:
+      fail-fast: true
+      matrix:
+        go: ['1.17']
+    name: Test
+    steps:
+      - uses: actions/setup-go@v2
+        with:
+          go-version: ${{matrix.go}}
+      - uses: actions/checkout@v2
+        name: 'Checkout'
+      - uses: actions/cache@v2
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+      - name: 'Download modules'
+        run: go mod download
+      - name: 'Test'
+        run: go test -race ./... -covermode=atomic -coverprofile=coverage.txt -timeout 5m
+      - uses: codecov/codecov-action@v1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          file: ./coverage.txt
+          flags: tests
+          name: codecov-umbrella
+          fail_ci_if_error: true
+          verbose: true
