@@ -15,17 +15,17 @@ type RequestVerifier struct {
 	public ed25519.PublicKey
 }
 
-func NewVerifier(keyPath string) (RequestVerifier, error) {
+func NewVerifier(keyPath string) (*RequestVerifier, error) {
 	absPath , err := utils.GetAbsolutePath(keyPath)
 
 	if err != nil {
-		return RequestVerifier{}, err
+		return nil, err
 	}
 
-	r := RequestVerifier{}
+	r := &RequestVerifier{}
 
 	if err := r.readKey(absPath); err != nil {
-		return RequestVerifier{}, err
+		return nil, err
 	}
 
 	return r, nil

@@ -15,17 +15,17 @@ type RequestSigner struct {
 	private ed25519.PrivateKey
 }
 
-func NewSigner(privateKeyPath string) (RequestSigner, error) {
+func NewSigner(privateKeyPath string) (*RequestSigner, error) {
 	privateKeyAbsPath, err := utils.GetAbsolutePath(privateKeyPath)
 
 	if err != nil {
-		return RequestSigner{}, err
+		return nil, err
 	}
 
-	r := RequestSigner{}
+	r := &RequestSigner{}
 
 	if err := r.readKey(privateKeyAbsPath); err != nil {
-		return RequestSigner{}, err
+		return nil, err
 	}
 
 	return r, nil
