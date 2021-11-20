@@ -14,20 +14,20 @@ type Ed25519KeyGenerator struct {
 	publicKeyPath  string
 }
 
-func NewKeyGenerator(privateKeyPath, publicKeyPath string) (Ed25519KeyGenerator, error) {
+func NewKeyGenerator(privateKeyPath, publicKeyPath string) (*Ed25519KeyGenerator, error) {
 	privateKeyAbsPath, err := utils.GetAbsolutePath(privateKeyPath)
 
 	if err != nil {
-		return Ed25519KeyGenerator{}, err
+		return nil, err
 	}
 
 	publicKeyAbsPath, err := utils.GetAbsolutePath(publicKeyPath)
 
 	if err != nil {
-		return Ed25519KeyGenerator{}, err
+		return nil, err
 	}
 
-	return Ed25519KeyGenerator{
+	return &Ed25519KeyGenerator{
 		privateKeyPath: privateKeyAbsPath,
 		publicKeyPath:  publicKeyAbsPath,
 	}, nil
