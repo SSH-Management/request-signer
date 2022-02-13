@@ -53,6 +53,7 @@ func TestVerifyStringSignature(t *testing.T) {
 		private, _ := fs.ReadFile(verifierKeysFS, "private.key")
 		r := RequestVerifier{
 			public: public,
+			order:  binary.LittleEndian,
 		}
 
 		payload := []byte("Hello World")
@@ -89,6 +90,7 @@ func TestVerifyStringSignature(t *testing.T) {
 
 		r := RequestVerifier{
 			public: public,
+			order:  binary.LittleEndian,
 		}
 
 		assert.ErrorIs(ErrInvalidSignature, r.VerifyStringSignature(timestamp, payload, "validbase64butnotsignature"))

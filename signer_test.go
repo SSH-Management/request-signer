@@ -53,6 +53,7 @@ func TestSignString(t *testing.T) {
 	contents, _ := fs.ReadFile(keysFs, "private.key")
 	r := RequestSigner{
 		private: contents,
+		order:   binary.LittleEndian,
 	}
 
 	payload := []byte("Hello World")
