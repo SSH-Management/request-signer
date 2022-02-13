@@ -1,9 +1,9 @@
-module github.com/SSH-Management/request-signer/v3
+module github.com/SSH-Management/request-signer/v4
 
 go 1.17
 
 require (
-	github.com/SSH-Management/utils/v2 v2.0.0
+	github.com/SSH-Management/utils/v2 v2.1.0
 	github.com/stretchr/testify v1.7.0
 )
 

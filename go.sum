@@ -1,5 +1,7 @@
 github.com/SSH-Management/utils/v2 v2.0.0 h1:y+QEu0eUtn49KVQZ7lAzby+9efKtXyVScsIh1KlBH5o=
 github.com/SSH-Management/utils/v2 v2.0.0/go.mod h1:cQhk6j07NahTQibV9vQYkmA1Gc8tbGwOt01p9Ef6NYk=
+github.com/SSH-Management/utils/v2 v2.1.0 h1:pLifN2MQX1zTNgz8HiynciqIaHe/JS17BKGNFVSOm5A=
+github.com/SSH-Management/utils/v2 v2.1.0/go.mod h1:cQhk6j07NahTQibV9vQYkmA1Gc8tbGwOt01p9Ef6NYk=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=

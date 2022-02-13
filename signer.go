@@ -3,9 +3,8 @@ package signer
 import (
 	"crypto/ed25519"
 	"encoding/base64"
-	"os"
-
-	"github.com/SSH-Management/utils/v2"
+	"encoding/binary"
+	"io/fs"
 )
 
 // Make sure RequestVerifier struct implements Verifier interface
@@ -13,34 +12,24 @@ var _ Signer = &RequestSigner{}
 
 type RequestSigner struct {
 	private ed25519.PrivateKey
+	order   binary.ByteOrder
 }
 
-func NewSigner(privateKeyPath string) (*RequestSigner, error) {
-	privateKeyAbsPath, err := utils.GetAbsolutePath(privateKeyPath)
+func NewSigner(keys fs.FS) (*RequestSigner, error) {
+	return NewSignerWithNameAndOrder(keys, "private.key", binary.LittleEndian)
+}
+
+func NewSignerWithNameAndOrder(keys fs.FS, privateKeyName string, order binary.ByteOrder) (*RequestSigner, error) {
+	contents, err := fs.ReadFile(keys, privateKeyName)
 
 	if err != nil {
 		return nil, err
 	}
 
-	r := &RequestSigner{}
-
-	if err := r.readKey(privateKeyAbsPath); err != nil {
-		return nil, err
-	}
-
-	return r, nil
-}
-
-func (r *RequestSigner) readKey(path string) error {
-	private, err := os.ReadFile(path)
-
-	if err != nil {
-		return err
-	}
-
-	r.private = private
-
-	return nil
+	return &RequestSigner{
+		private: contents,
+		order:   order,
+	}, nil
 }
 
 func (r RequestSigner) SignString(payload []byte, timestamp uint64) string {
@@ -48,7 +37,7 @@ func (r RequestSigner) SignString(payload []byte, timestamp uint64) string {
 }
 
 func (r RequestSigner) Sign(payload []byte, timestamp uint64) []byte {
-	data := makePayload(payload, timestamp)
+	data := makePayload(payload, timestamp, r.order)
 
 	return ed25519.Sign(r.private, data)
 }

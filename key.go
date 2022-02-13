@@ -52,12 +52,12 @@ func (r Ed25519KeyGenerator) Generate() error {
 		return err
 	}
 
-	if err := os.WriteFile(r.publicKeyPath, public, 0644); err != nil {
+	if err = os.WriteFile(r.publicKeyPath, public, 0644); err != nil {
 		_ = os.Remove(r.publicKeyPath)
 		return err
 	}
 
-	if err := os.WriteFile(r.privateKeyPath, private, 0600); err != nil {
+	if err = os.WriteFile(r.privateKeyPath, private, 0600); err != nil {
 		_ = os.Remove(r.privateKeyPath)
 		_ = os.Remove(r.publicKeyPath)
 		return err

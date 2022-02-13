@@ -3,9 +3,8 @@ package signer
 import (
 	"crypto/ed25519"
 	"encoding/base64"
-	"os"
-
-	"github.com/SSH-Management/utils/v2"
+	"encoding/binary"
+	"io/fs"
 )
 
 // Make sure RequestVerifier struct implements Verifier interface
@@ -13,36 +12,25 @@ var _ Verifier = &RequestVerifier{}
 
 type RequestVerifier struct {
 	public ed25519.PublicKey
+	order  binary.ByteOrder
 }
 
-func NewVerifier(keyPath string) (*RequestVerifier, error) {
-	absPath , err := utils.GetAbsolutePath(keyPath)
+func NewVerifier(keys fs.FS) (*RequestVerifier, error) {
+	return NewVerifierWithNameAndOrder(keys, "public.key", binary.LittleEndian)
+}
+
+func NewVerifierWithNameAndOrder(keys fs.FS, publicKeyName string, order binary.ByteOrder) (*RequestVerifier, error) {
+	contents, err := fs.ReadFile(keys, publicKeyName)
 
 	if err != nil {
 		return nil, err
 	}
 
-	r := &RequestVerifier{}
-
-	if err := r.readKey(absPath); err != nil {
-		return nil, err
-	}
-
-	return r, nil
+	return &RequestVerifier{
+		public: contents,
+		order:  order,
+	}, nil
 }
-
-func (r *RequestVerifier) readKey(path string) error {
-	public, err := os.ReadFile(path)
-
-	if err != nil {
-		return err
-	}
-
-	r.public = public
-
-	return nil
-}
-
 
 func (r RequestVerifier) VerifyStringSignature(timestamp uint64, payload []byte, signature string) error {
 	signatureBytes, err := base64.RawURLEncoding.DecodeString(signature)
@@ -55,7 +43,7 @@ func (r RequestVerifier) VerifyStringSignature(timestamp uint64, payload []byte,
 }
 
 func (r RequestVerifier) Verify(timestamp uint64, payload []byte, signature []byte) error {
-	data := makePayload(payload, timestamp)
+	data := makePayload(payload, timestamp, r.order)
 
 	if !ed25519.Verify(r.public, data, signature) {
 		return ErrInvalidSignature
